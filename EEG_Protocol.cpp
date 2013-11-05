@@ -157,6 +157,8 @@ void EEG_Protocol::ManagePackageSequenses(PagedArray<CommonPackage> *Out_pkg_Ptr
 		// бежим по необработанным ещё посылкам приёмной очереди (кроме последней, которая по определению всегда не завершена)
 		for (; pkg_idx_to_process < In_pkg_Ptr->size() - 1; pkg_idx_to_process++)
 		{
+            //std::cout<<"ENTERING THE MANAGE PACKAGE SEQ FUNC"<<std::endl;
+
 			// текущая обрабатываемая входная посылка
 			CommonPackage &pkg = (*(In_pkg_Ptr))[pkg_idx_to_process];
 

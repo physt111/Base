@@ -319,6 +319,7 @@ private:
 	/// ID следующего принимаемого пакета (ЧЁТНЫЙ)
     long long in_id;
 
+
 	/**************************************************************
 	*
 	*					Парсер входного потока байт
@@ -458,11 +459,11 @@ protected:
 					/// оповещаем клиентов оповещателя, если надо (лучше использовать только в отладочном режиме работы канала)
 					/// т.к. package_io_notifyer асинхронен, то сильных задержек во временной диагнамме не будет
 					/// (AddPostNotification - имеет вполне фиксированное, малое время срабатывания)
-					if (got_package_notification_enabled)
+                    if (got_package_notification_enabled)
 						// если у оповещателя есть хоть один клиент и оповещатель включён
 						if (package_io_notifyer.got_package_notifyer.HasAnyNotifyCBRec() && package_io_notifyer.IsNotificatorWorking())
 						{
-							// эти данные из кучи удаляются по соглашению последним обработчиком
+                            // эти данные из кучи удаляются по соглашению последним обработчиком
 							// вызываемого оповещения
 							CommonPackage *pack_copy_ptr = new CommonPackage(In_pkg[idx]);
                             vector<unsigned char> *data_copy_ptr = new vector<unsigned char>(In_pkg[idx].package_data_length);
@@ -489,11 +490,20 @@ protected:
 				if (out_sem.tryAcquire(1, Manage_WaitingTime_us))
 				{
 					Protocol->ManagePackageSequenses(&Out_pkg, &Out_byte, &In_pkg, &In_byte, pack_to_write_idx);
-					out_sem.release();
+
+                    // тут мы можем удалять пропарсенные (и уже отнотифайенные данные =) Слава русскому языку =)
+                    // если объём пропарсенных входных данных превысил лимит, то стираем всё наф!
+                    BSP->MaxShiftLeft();
+
+                    // смещаем индекс следующей обрабатываемой на уровне протокола посылки
+                    Protocol->FlushNextPackToManageIndex();
+
+					out_sem.release();                    
 				};
 
 				in_sem.release();
 			};
+
 
 			// доступ к выходной очереди для посылки
 			if (out_sem.tryAcquire(1, Manage_WaitingTime_us))

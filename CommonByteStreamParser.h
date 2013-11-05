@@ -64,6 +64,10 @@ protected:
 	/// <summary> Указывает направление данных, для которого успользуется парсер</summary>
 	const bool computer_side_mode;
 
+    /// Максимальный размер пропарсенных данных входной очереди - в байтах
+    /// если размер превышен, то просто удаляем все обработанные данные из взодной очереди
+#define MAX_IN_Q_SIZE 1024
+
 public:
 
 	/// Умолчательный конструктор
@@ -90,6 +94,41 @@ public:
 		CommonPackage tmp_pkg;
 		packs_storage->push_back(tmp_pkg);
 	};
+
+    /// Сдвинуть парсер байт на максимально возможное число байт в начало массива байт (нужен при удалениии старых данных из входящей очереди байт)
+    void MaxShiftLeft()
+    {
+        std::cout<<"Entering MaxShiftLeft"<<std::endl;
+
+        if (((*packs_storage)[packs_storage->size() - 2]).first_byte_stream_offset + ((*packs_storage)[packs_storage->size() - 2]).package_data_length > MAX_IN_Q_SIZE)
+            if (packs_storage->size() >= 2)
+            {
+
+                // Модифицируем очередь байт
+                    // размер пропарсенных данных
+                int parsed_size = ((*packs_storage)[packs_storage->size() - 2]).first_byte_stream_offset + ((*packs_storage)[packs_storage->size() - 2]).package_data_length;
+                std::cout<<"Parsed size = "<<parsed_size<<std::endl;
+                std::cout<<"ByteStorage size = "<<byte_storage->size()<<std::endl;
+                std::cout<<"PacksStorage size = "<<packs_storage->size()<<std::endl;
+                    // модифицируем массив байт (переносим непропарсенную часть в начало массива)
+                for (int i = parsed_size; i < byte_storage->size(); i++)
+                    ((*byte_storage)[i - parsed_size]) = ((*byte_storage)[i]);
+                    // ресайзим массив
+
+                byte_storage->resize(byte_storage->size() - parsed_size);
+
+                    // модифицируем ВСЕ индексные переменные, которые работали с byte_storage массивом
+                ((*packs_storage)[packs_storage->size() - 1]).first_byte_stream_offset = 0;
+                current_byte_idx -= parsed_size;
+
+                // Модифицируем очередь посылок
+                    // сам массив
+                ((*packs_storage)[0]) = ((*packs_storage)[packs_storage->size() - 1]);
+                packs_storage->resize(1);
+                    // модифицируем ВСЕ индексные переменные, которые работали с packs_storage массивом
+                current_parsing_pack_idx = 0;
+            };
+    };
 
 	/// Задаёт указатели на хранилища байт и пакетов
 	void SetQueues(ByteStorage *bytes, PackagesStorage *packs)

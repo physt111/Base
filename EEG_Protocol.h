@@ -750,9 +750,6 @@ namespace MBN_EEG
 		/// индекс самой ранней неподтверждённой посылки в массиве посылок выходной очереди
 		int unsubmitted_pkg_idx;
 
-		/// индекс посылки в массиве посылок входной очереди, которую нужно будет обработать на уровне логики протокола при следующем вызове
-		int pkg_idx_to_process;
-
 		/// Количество ошибок протокола. Если число - больше MAX_ERRORS_COUNT (скорее всего за какой-то промежуток времени (типа часа)), то фатал еррор
 		int errors_count;
 
@@ -1018,8 +1015,7 @@ namespace MBN_EEG
 			acknowledge_timeout_callback_object_ptr = acknowledge_timeout_callback_ptr_parameter;
 			data_callback_object_ptr = data_callback_object_ptr_parameter;
 			message_callback_object_ptr = message_callback_object_ptr_parameter;
-		};
-
+        };
 
 	};
 
@@ -2661,12 +2657,12 @@ namespace MBN_EEG
 		{
 			if (size == Common_Data_Size + SPECIAL_DATA_SIZE)
 			{
-				cout<<"IsCorrectSize returned true";
+                //cout<<"IsCorrectSize returned true";
 				return true;
-			}
+            }
 			else 
 			{
-				cout<<"IsCorrectSize returned false";
+                //cout<<"IsCorrectSize returned false";
 				return false;
 			};
 		};

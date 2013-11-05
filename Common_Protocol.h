@@ -35,6 +35,15 @@ public:
 	virtual string GetPackageNameString(int type, int subtype) = 0;
 
 
+    /// индекс посылки в массиве посылок входной очереди, которую нужно будет обработать на уровне логики протокола при следующем вызове
+    int pkg_idx_to_process;
+
+    // Обнулить индекс посылки для обработки на уровне протокола
+    void FlushNextPackToManageIndex()
+    {
+        pkg_idx_to_process = 0;
+    }
+
 	/// парсер кода для протокола
     CommonByteStreamParser<PagedArray<unsigned char>, PagedArray<CommonPackage> >* StreamParserPtr;
 	

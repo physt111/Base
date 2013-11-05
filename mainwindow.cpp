@@ -22,11 +22,21 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->impedancePtr, SIGNAL(ImpedanceChanged(int,float,bool)), this, SLOT(gotImpedance(int,float,bool)));
 
     impedancePtr->SwitchOnImpedanceMode();
+    impedancePtr->SwitchOffImpedanceMode();
+
+    EEG_obj->CS_SetChannelsMode(MBN_EEG::EEG_Device_Architecture::EEG_ChannelsCommutatorArc::CH_MODE_EEG);
+    EEG_obj->CS_StartRecording();
+
+    vecDataPtr = new MBN_EEG::EEG_Event_Vector_D_UsualData(&CBusualData, this);
+    EEG_obj->AddEventVector(vecDataPtr);
+    EEG_obj->EnableEvents();
+
 
 }
 
 MainWindow::~MainWindow()
 {
+    delete vecDataPtr;
     delete ui;
     impedancePtr->ConnectToEEG(0);
     delete EEG_obj;
@@ -37,3 +47,8 @@ void MainWindow::gotImpedance(int channel_index, float resistance, bool overflow
     std::cout<<"IMPEDANCE"<<std::endl;
     std::cout<<"channel_index = "<<channel_index<<" resistance = "<<resistance<<" overflow = "<<overflow<<std::endl;
 }
+void MainWindow::CBusualData(void* u_ptr, int ch0val, int ch1val, int ch2val, int ch3val)
+{
+    std::cout<<"DATA:   ch0 = "<<ch0val<<" ch1 = "<<ch1val<<std::endl;
+}
+
